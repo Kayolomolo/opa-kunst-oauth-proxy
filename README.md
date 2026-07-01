@@ -1,34 +1,32 @@
-# OAuth-proxy voor de beheerpagina van de kunst-website
+# Inlogdienst voor de beheerpagina van de kunst-website
 
 Dit kleine project zorgt ervoor dat de beheerpagina (`/admin/`) van
-[opa-kunst-website](https://github.com/Kayolomolo/opa-kunst-website) kan
-inloggen met een GitHub-account. Het draait gratis op Vercel.
+[opa-kunst-website](https://github.com/Kayolomolo/opa-kunst-website) een
+eigen inlogscherm heeft (e-mailadres + wachtwoord), zonder dat er een
+GitHub-account nodig is om in te loggen. Het draait gratis op Vercel.
+
+Achter de schermen gebruikt de dienst één technische sleutel (een GitHub
+Personal Access Token) om de wijzigingen daadwerkelijk op te slaan — dat is
+onzichtbaar voor de gebruiker.
 
 ## Eenmalige installatie
 
-1. **Maak een GitHub OAuth App aan:**
-   Ga naar https://github.com/settings/applications/new en vul in:
-   - Application name: `Opa kunst beheer`
-   - Homepage URL: `https://kayolomolo.github.io/opa-kunst-website/`
-   - Authorization callback URL: `https://JOUW-VERCEL-ADRES.vercel.app/api/callback`
-     (dit adres weet je pas na stap 2 — kom hier even op terug)
+1. **Maak een GitHub Personal Access Token aan:**
+   Ga naar https://github.com/settings/tokens?type=beta → **Generate new token**.
+   - Repository access: **Only select repositories** → kies `opa-kunst-website`
+   - Permissions → **Contents**: zet op **Read and write**
+   - Klik op **Generate token** en bewaar de token direct (begint met `github_pat_...`) — hij wordt maar één keer getoond.
 
-   Na het aanmaken krijg je een **Client ID** en kun je een **Client secret** genereren. Bewaar beide.
+2. **Zet de Environment Variables in Vercel:**
+   Ga naar het project `opa-kunst-oauth-proxy` op vercel.com → **Settings → Environment Variables** en voeg toe:
+   - `GITHUB_TOKEN` = de token van stap 1
+   - `ADMIN_EMAIL` = het e-mailadres waarmee ingelogd mag worden (zelf te kiezen)
+   - `ADMIN_PASSWORD` = het wachtwoord waarmee ingelogd mag worden (zelf te kiezen)
 
-2. **Deploy dit project op Vercel:**
-   - Ga naar https://vercel.com, maak een gratis account (geen creditcard nodig), en kies **Add New → Project**.
-   - Importeer deze repo (`opa-kunst-oauth-proxy`).
-   - Voeg twee Environment Variables toe:
-     - `OAUTH_CLIENT_ID` = de Client ID van stap 1
-     - `OAUTH_CLIENT_SECRET` = het Client secret van stap 1
-   - Klik op **Deploy**. Je krijgt een adres zoals `https://opa-kunst-oauth-proxy.vercel.app`.
+   (De oude `OAUTH_CLIENT_ID` / `OAUTH_CLIENT_SECRET` variabelen zijn niet meer nodig en mogen verwijderd worden.)
 
-3. **Rond de GitHub OAuth App af:**
-   Ga terug naar de OAuth App instellingen (stap 1) en vul de echte callback URL in:
-   `https://opa-kunst-oauth-proxy.vercel.app/api/callback`
+3. **Deploy opnieuw:**
+   Ga naar **Deployments**, klik bij de bovenste deployment op **... → Redeploy**.
 
-4. **Koppel het adres aan de beheerpagina:**
-   Geef het Vercel-adres door, dan werk ik `admin/config.yml` in de website-repo bij met `base_url: https://opa-kunst-oauth-proxy.vercel.app`.
-
-Daarna kan iedereen met schrijftoegang tot de repo (zoals jij) inloggen op
-`https://kayolomolo.github.io/opa-kunst-website/admin/` met hun GitHub-account.
+Daarna kan iedereen met dat e-mailadres en wachtwoord inloggen op
+`https://kayolomolo.github.io/opa-kunst-website/admin/` — geen GitHub-kennis nodig.
